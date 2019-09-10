@@ -13,9 +13,10 @@
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"
               crossorigin="anonymous"
-              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"/>
+              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
     </environment>
     <link rel="stylesheet" href="~/css/site.css" />
+    <script src="https://media.twiliocdn.com/sdk/js/flex-webchat/releases/2.1.2/twilio-flex-webchat.min.js"></script>
 </head>
 <body>
     <header>
@@ -51,6 +52,181 @@
             &copy; 2019 - flex_webchat_ui_sample1 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
+    <!--START WebChat-->
+
+    <script>
+        const brandColor1 = "#00CD47";
+        const brandColor2 = "#E5E5EB";
+        const brandTextColor = "#000000";
+
+        const personalizedColors = {
+            greenBackground: "#8ec73f",
+            whiteText: "#FFFFFF",
+            entryPointBackground: "#8ec73f",
+            lighterBackground: "#ecedf1",
+            primaryButtonBackground: "#1976d2",
+            primaryButtonColor: "#FFFFFF",
+            secondaryButtonBackground: "#6e7180",
+            secondaryButtonColor: "#FFFFFF"
+        };
+
+        const brandMessageBubbleColorsForOthers = (bgColor) => ({
+            Bubble: {
+                background: bgColor,
+                color: brandTextColor
+            },
+            Avatar: {
+                background: bgColor,
+                color: brandTextColor
+            },
+            Header: {
+                color: brandTextColor
+            }
+        });
+
+        const brandMessageBubbleColorsForMe = (bgColor) => ({
+            Bubble: {
+                background: bgColor,
+                color: "#FFFFFF"
+            },
+            Avatar: {
+                background: bgColor,
+                color: brandTextColor
+            },
+            Header: {
+                color: "#FFFFFF"
+            }
+        });
+
+        const brandedColors = {
+            Chat: {
+                MessageListItem: {
+                    FromOthers: brandMessageBubbleColorsForOthers(brandColor2),
+                    FromMe: brandMessageBubbleColorsForMe(brandColor1),
+                },
+                MessageInput: {
+                    Button: {
+                        background: "#8ec73f",
+                        color: "#FFFFFF"
+                    }
+                },
+                MessageCanvasTray: {
+                    Container: {
+                        background: personalizedColors.greenBackground,
+                        color: personalizedColors.whiteText
+                    }
+                },
+            },
+
+            MainHeader: {
+                Container: {
+                    background: "#F9F9F9",
+                    color: "#000000"
+                },
+                Logo: {
+                    fill: "none"
+                }
+            },
+
+            EntryPoint: {
+                Container: {
+                    background: personalizedColors.entryPointBackground,
+                    color: personalizedColors.whiteText
+                }
+            },
+
+            PreEngagementCanvas: {
+                Container: {
+                    background: personalizedColors.lighterBackground
+                },
+
+                Form: {
+                    SubmitButton: {
+                        background: "#8ec73f",
+                        color: personalizedColors.whiteText,
+                        "font-weight":
+                            '700 !important',
+                        "font-size":
+                            '0.875rem',
+                        "font":
+                            'normal',
+                        "margin-left":
+                            '64px',
+                        "&:hover": {
+                            backgroundColor: "#8ec73f"
+                        }
+                    }
+                }
+            }
+        };
+
+        const appConfig = {
+            accountSid: 'ACe97c5c2021741630bc5fb73a75adfd19',
+            /**/
+            flexFlowSid: 'FO3d09bd869cf86c59bedb521e288d93c0',
+            /**/
+            colorTheme: {
+                overrides: brandedColors
+            },
+            available: true,
+            startEngagementOnInit: false,
+            context: {
+                friendlyName: "Anonymous",
+                locationOrigin: window.location.origin
+            },
+            preEngagementConfig: {
+                description: "Please provide some information",
+                fields: [
+                    {
+                        label: "What is your full name?",
+                        type: "InputItem",
+                        attributes: {
+                            name: "friendlyName",
+                            type: "text",
+                            placeholder: "Enter your full name",
+                            required: true
+                        }
+                    },
+                    {
+                        label: "What is your email?",
+                        type: "InputItem",
+                        attributes: {
+                            name: "email",
+                            type: "email",
+                            placeholder: "Enter your email",
+                            required: true
+                        }
+                    }
+                ],
+                submitLabel: "START CHAT NOW!"
+            }
+        };
+
+        Twilio.FlexWebChat.createWebChat(appConfig).then(webchat => {
+            const { manager } = webchat;
+
+            //  Replace less friendly name with something more inviting
+            manager.strings.PredefinedChatMessageAuthorName = "Agent";
+            Twilio.FlexWebChat.MainHeader.defaultProps.showImage = false;
+            Twilio.FlexWebChat.MainHeader.defaultProps.titleText = "CHAT WITH US";
+            Twilio.FlexWebChat.EntryPoint.defaultProps.tagline = "";
+            Twilio.FlexWebChat.EntryPoint.defaultProps.hideTaglineWhenExpanded = true;
+            Twilio.FlexWebChat.MainContainer.defaultProps.height = "425px";
+            Twilio.FlexWebChat.MainContainer.defaultProps.width = "335px";
+
+            Twilio.FlexWebChat.MessagingCanvas.defaultProps.memberDisplayOptions = {
+                yourDefaultName: 'You',
+                theirDefaultName: 'Agent',
+                yourFriendlyNameOverride: false,
+                theirFriendlyNameOverride: true
+            }
+
+            webchat.init();
+        });
+    </script>
+    <!--END WebChat-->
+
 
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>
